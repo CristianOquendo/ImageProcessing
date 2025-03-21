@@ -2,38 +2,43 @@ import java.awt.*;
 
 public class Main {
     public static void main(String[] args) {
-        // The provided images are apple.jpg, flower.jpg, and kitten.jpg
+        // Cargar la imagen
         int[][] imageData = ImageProcessing.imgToTwoD("./apple.jpg");
-        //ImagenProcessing.viewImageData (I
-        // Or load your own image using a URL!
-        //int[][] imageData = imgToTwoD("https://content.codecademy.com/projects/project_thumbnails/phaser/bug-dodger.png");
-        //viewImageData(imageData);
-        int[][] trimmed = ImageProcessing.trimBorders(imageData, 200);
 
-        int[][] negative = ImageProcessing.negativeColor(imageData);
-
-        int [][] stretch = ImageProcessing.stretchHorizontally(imageData);
-
-        int [][] shrink = ImageProcessing.shrinkVertically(imageData);
-
-        int [][] invert = ImageProcessing.invertImage(imageData);
-
-       //int [][] color = ImageProcessing.colorFilter();
-
-        System.out.println(paintRectangle);
-
-
-
+        // Recortar los bordes de la imagen
+        int[][] trimmed = ImageProcessing.trimBorders(imageData, 60);
         ImageProcessing.twoDToImage(trimmed, "./trimmed_apple.jpg");
-        ImageProcessing.twoDToImage(negative, "./negative_apple.png");
-        ImageProcessing.twoDToImage(stretch, "./stretch_apple.png");
-        ImageProcessing.twoDToImage(shrink, "./shrink_apple.png");
-        ImageProcessing.twoDToImage(invert, "./invert_apple.png");
-        //ImageProcessing.twoDToImage(color, "./color_filter_apple.png");
 
+        // Crear una versión negativa de la imagen
+        int[][] negative = ImageProcessing.negativeColor(trimmed);
+        ImageProcessing.twoDToImage(negative, "./negative_apple.jpg");
 
-        }
+        // Estirar la imagen horizontalmente
+        assert trimmed != null;
+        int[][] stretched = ImageProcessing.stretchHorizontally(trimmed);
+        ImageProcessing.twoDToImage(stretched, "./stretched_apple.jpg");
 
-        // int[][] allFilters = stretchHorizontally(shrinkVertically(colorFilter(negativeColor(trimBorders(invertImage(imageData), 50)), 200, 20, 40)));
-        // Painting with pixels
+        // Reducir la imagen verticalmente
+        int[][] shrunk = ImageProcessing.shrinkVertically(trimmed);
+        ImageProcessing.twoDToImage(shrunk, "./shrunk_apple.jpg");
+
+        // Invertir la imagen
+        int[][] inverted = ImageProcessing.invertImage(trimmed);
+        ImageProcessing.twoDToImage(inverted, "./inverted_apple.jpg");
+
+        // Aplicar un filtro de color
+        int[][] filtered = ImageProcessing.colorFilter(trimmed, 50, -30, 20);
+        ImageProcessing.twoDToImage(filtered, "./filtered_apple.jpg");
+
+        // Pintar una imagen aleatoria
+        int[][] randomImage = ImageProcessing.paintRandomImage(new int[500][500]);
+        ImageProcessing.twoDToImage(randomImage, "./random_image.jpg");
+
+        // Pintar rectángulos aleatorios
+        int[][] canvas = new int[500][500];
+        int[][] rectangles = ImageProcessing.generateRectangles(canvas, 1000);
+        ImageProcessing.twoDToImage(rectangles, "./rectangles.jpg");
+
+        System.out.println("Procesamiento de imágenes completado. Verifica los archivos generados.");
     }
+}

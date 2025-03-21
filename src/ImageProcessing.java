@@ -7,131 +7,181 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 
 public class ImageProcessing {
-    // Image Processing Methods
-    public static int[][] trimBorders(int[][] imageTwoD, int pixelCount) {
-        // Example Method
-        if (imageTwoD.length > pixelCount * 2 && imageTwoD[0].length > pixelCount * 2) {
-            int[][] trimmedImg = new int[imageTwoD.length - pixelCount * 2][imageTwoD[0].length - pixelCount * 2];
-            for (int i = 0; i < trimmedImg.length; i++) {
-                for (int j = 0; j < trimmedImg[i].length; j++) {
-                    trimmedImg[i][j] = imageTwoD[i + pixelCount][j + pixelCount];
-                }
-            }
-            return trimmedImg;
-        } else {
-            System.out.println("Cannot trim that many pixels from the given image.");
-            return imageTwoD;
-        }
+
+    public static void main(String[] args) {
+        // Cargar la imagen
+        int[][] imageData = imgToTwoD("./apple.jpg");
+
+        // Ejemplo de uso de los métodos
+        int[][] trimmed = trimBorders(imageData, 60);
+        twoDToImage(trimmed, "./trimmed_apple.jpg");
+
+        int[][] negative = negativeColor(trimmed);
+        twoDToImage(negative, "./negative_apple.jpg");
+
+        int[][] stretched = stretchHorizontally(trimmed);
+        twoDToImage(stretched, "./stretched_apple.jpg");
+
+        int[][] shrunk = shrinkVertically(trimmed);
+        twoDToImage(shrunk, "./shrunk_apple.jpg");
+
+        int[][] inverted = invertImage(trimmed);
+        twoDToImage(inverted, "./inverted_apple.jpg");
+
+        int[][] filtered = colorFilter(trimmed, 50, -30, 20);
+        twoDToImage(filtered, "./filtered_apple.jpg");
+
+        // Pintar una imagen aleatoria
+        int[][] randomImage = paintRandomImage(new int[500][500]);
+        twoDToImage(randomImage, "./random_image.jpg");
+
+        // Pintar rectángulos
+        int[][] canvas = new int[500][500];
+        int[][] rectangles = generateRectangles(canvas, 1000);
+        twoDToImage(rectangles, "./rectangles.jpg");
     }
 
+    public static int[][] trimBorders(int[][] imageData, int i) {
+        return imageData;
+    }
+
+    // Método para crear una versión negativa de la imagen
     public static int[][] negativeColor(int[][] imageTwoD) {
-        int[][] negativeImage = new int[imageTwoD.length][imageTwoD[0].length];
-        for (int row = 0; row < imageTwoD.length; row++) {
-            for (int col = 0; col < imageTwoD[row].length; col++) {
-                int[] rgba = getRGBAFromPixel(imageTwoD[row][col]);
-                rgba[0] = 255 - rgba[0];
-                rgba[1] = 255 - rgba[1];
-                rgba[2] = 255 - rgba[2];
-                negativeImage[row][col] = getColorIntValFromRGBA(rgba);
-            }
+        // Validar que imageTwoD no sea null
+        if (imageTwoD == null) {
+            System.out.println("Error: El arreglo de la imagen es null.");
+            return null;
         }
-        return negativeImage;
-    }
 
-    public static int[][] stretchHorizontally(int[][] imageTwoD) {
-        int[][] stretch = new int[imageTwoD.length][imageTwoD[0].length * 2];{
-            for (int i = 0; i < imageTwoD.length; i++){
-                for (int j = 0; j < imageTwoD[i].length; j++){
-                  int  newCol = j * 2;
-                  stretch[i][newCol] = imageTwoD[i][j];
-                  stretch[i][newCol+1] = imageTwoD[i][j];
-                }
-            }
-            return stretch;
+        // Validar que imageTwoD tenga al menos una fila y una columna
+        if (imageTwoD.length == 0 || imageTwoD[0].length == 0) {
+            System.out.println("Error: El arreglo de la imagen está vacío o tiene dimensiones incorrectas.");
+            return null;
         }
-    }
 
-    public static int[][] shrinkVertically(int[][] imageTwoD) {
-        int[][] shrink = new int[imageTwoD.length/2][imageTwoD[0].length];
-        for (int i = 0; i < imageTwoD.length; i++){
-            for (int j = 0; j < imageTwoD[i].length; j+=2){
-                shrink[i/2][j] = imageTwoD[i][j];
+        // Crear la imagen modificada
+        int[][] modifiedImage = new int[imageTwoD.length][imageTwoD[0].length];
 
-            }
-        }
-         return shrink;
-    }
-
-    public static int[][] invertImage(int[][] imageTwoD) {
-        int[][] invertedImage = new int[imageTwoD.length][imageTwoD.length];
-        for (int i = 0; i < imageTwoD.length; i++){
-            for (int j = 0; j < imageTwoD[i].length; j++){
-
-                invertedImage[i][j] = imageTwoD[(imageTwoD.length - 1) - i][(imageTwoD[i].length - 1) - j];
-            }
-
-        }
-      return invertedImage;
-    }
-
-    public static int[][] colorFilter(int[][] imageTwoD, int redChangeValue, int greenChangeValue, int blueChangeValue) {
-        int[][] newImage = new int[imageTwoD.length][imageTwoD.length];
-        for (int i = 0; i < imageTwoD.length; i++){
-            for (int j = 0; j < imageTwoD[i].length; j++){
+        // Recorrer cada píxel de la imagen
+        for (int i = 0; i < imageTwoD.length; i++) {
+            for (int j = 0; j < imageTwoD[i].length; j++) {
+                // Obtener los valores RGBA del píxel actual
                 int[] rgba = getRGBAFromPixel(imageTwoD[i][j]);
-                int newred = rgba[0] + redChangeValue;
-                int newgreen = rgba[1] + greenChangeValue;
-                int newblue = rgba[2] + blueChangeValue;
 
-                rgba[0] =
+                // Validar que rgba no sea null
+                if (rgba == null || rgba.length != 4) {
+                    System.out.println("Error: No se pudieron obtener los valores RGBA del píxel.");
+                    return null;
+                }
 
+                // Calcular el negativo de cada componente de color
+                rgba[0] = 255 - rgba[0]; // Negativo de Rojo
+                rgba[1] = 255 - rgba[1]; // Negativo de Verde
+                rgba[2] = 255 - rgba[2]; // Negativo de Azul
+
+                // Convertir los valores RGBA de nuevo a un valor de píxel
+                modifiedImage[i][j] = getColorIntValFromRGBA(rgba);
+
+                // Validar que el valor del píxel sea válido
+                if (modifiedImage[i][j] == -1) {
+                    System.out.println("Error: No se pudo convertir el valor RGBA a un valor de píxel válido.");
+                    return null;
                 }
             }
         }
 
-        // TODO: Fill in the code for this method
-        return null;
+        // Devolver la imagen modificada
+        return modifiedImage;
     }
 
+    // Método para estirar la imagen horizontalmente
+    public static int[][] stretchHorizontally(int[][] imageTwoD) {
+        int[][] modifiedImage = new int[imageTwoD.length][imageTwoD[0].length * 2];
+        for (int i = 0; i < imageTwoD.length; i++) {
+            for (int j = 0; j < imageTwoD[i].length; j++) {
+                int it = j * 2;
+                modifiedImage[i][it] = imageTwoD[i][j];
+                modifiedImage[i][it + 1] = imageTwoD[i][j];
+            }
+        }
+        return modifiedImage;
+    }
 
-    // Painting Methods
+    // Método para reducir la imagen verticalmente
+    public static int[][] shrinkVertically(int[][] imageTwoD) {
+        int[][] modifiedImage = new int[imageTwoD.length / 2][imageTwoD[0].length];
+        for (int i = 0; i < imageTwoD[0].length; i++) {
+            for (int j = 0; j < imageTwoD.length - 1; j += 2) {
+                modifiedImage[j / 2][i] = imageTwoD[j][i];
+            }
+        }
+        return modifiedImage;
+    }
+
+    // Método para invertir la imagen
+    public static int[][] invertImage(int[][] imageTwoD) {
+        int[][] modifiedImage = new int[imageTwoD.length][imageTwoD[0].length];
+        for (int i = 0; i < imageTwoD.length; i++) {
+            for (int j = 0; j < imageTwoD[i].length; j++) {
+                modifiedImage[i][j] = imageTwoD[imageTwoD.length - 1 - i][imageTwoD[i].length - 1 - j];
+            }
+        }
+        return modifiedImage;
+    }
+
+    // Método para aplicar un filtro de color
+    public static int[][] colorFilter(int[][] imageTwoD, int redChangeValue, int greenChangeValue, int blueChangeValue) {
+        int[][] modifiedImage = new int[imageTwoD.length][imageTwoD[0].length];
+        for (int i = 0; i < imageTwoD.length; i++) {
+            for (int j = 0; j < imageTwoD[i].length; j++) {
+                int[] rgba = getRGBAFromPixel(imageTwoD[i][j]);
+                rgba[0] = Math.max(0, Math.min(255, rgba[0] + redChangeValue)); // Ajustar Rojo
+                rgba[1] = Math.max(0, Math.min(255, rgba[1] + greenChangeValue)); // Ajustar Verde
+                rgba[2] = Math.max(0, Math.min(255, rgba[2] + blueChangeValue)); // Ajustar Azul
+                modifiedImage[i][j] = getColorIntValFromRGBA(rgba);
+            }
+        }
+        return modifiedImage;
+    }
+
+    // Método para pintar una imagen con colores aleatorios
     public static int[][] paintRandomImage(int[][] canvas) {
         Random rand = new Random();
-        for (int i = 0; i < canvas.length; i++){
-            for (int j = 0; j < canvas[i].length; j++){
-                canvas[i][j] = rand.nextInt(256);
-
-                System.out.println(canvas[i][j]);
-                System.out.println(canvas[i][j]);
-                System.out.println(canvas[i][j]);
-
-            //    int [] rgba = getColorIntValFromRGBA(); //
+        for (int i = 0; i < canvas.length; i++) {
+            for (int j = 0; j < canvas[i].length; j++) {
+                int[] rgba = {rand.nextInt(256), rand.nextInt(256), rand.nextInt(256), 255};
+                canvas[i][j] = getColorIntValFromRGBA(rgba);
             }
         }
-        // TODO: Fill in the code for this method
-        return null;
+        return canvas;
     }
 
+    // Método para pintar un rectángulo en la imagen
     public static int[][] paintRectangle(int[][] canvas, int width, int height, int rowPosition, int colPosition, int color) {
-        for (int i = 0; i < canvas.length; i++){
-            for (int j = 0; j < canvas[i].length; j++){
-              if (i >= rowPosition && i <= rowPosition + width) {
-                  int newRow = i - rowPosition;
-
-              }
-
+        for (int i = rowPosition; i < rowPosition + height && i < canvas.length; i++) {
+            for (int j = colPosition; j < colPosition + width && j < canvas[i].length; j++) {
+                canvas[i][j] = color;
             }
         }
-        // TODO: Fill in the code for this method
-        return null;
+        return canvas;
     }
 
+    // Método para generar rectángulos aleatorios
     public static int[][] generateRectangles(int[][] canvas, int numRectangles) {
-        // TODO: Fill in the code for this method
-        return null;
+        Random rand = new Random();
+        for (int i = 0; i < numRectangles; i++) {
+            int width = rand.nextInt(canvas[0].length);
+            int height = rand.nextInt(canvas.length);
+            int rowPosition = rand.nextInt(canvas.length - height);
+            int colPosition = rand.nextInt(canvas[0].length - width);
+            int[] rgba = {rand.nextInt(256), rand.nextInt(256), rand.nextInt(256), 255};
+            int color = getColorIntValFromRGBA(rgba);
+            paintRectangle(canvas, width, height, rowPosition, colPosition, color);
+        }
+        return canvas;
     }
 
-    // Utility Methods
+    // Métodos de utilidad (ya proporcionados)
     public static int[][] imgToTwoD(String inputFileOrLink) {
         try {
             BufferedImage image = null;
@@ -178,7 +228,7 @@ public class ImageProcessing {
 
     public static int[] getRGBAFromPixel(int pixelColorValue) {
         Color pixelColor = new Color(pixelColorValue);
-        return new int[]{pixelColor.getRed(), pixelColor.getGreen(), pixelColor.getBlue(), pixelColor.getAlpha()};
+        return new int[] { pixelColor.getRed(), pixelColor.getGreen(), pixelColor.getBlue(), pixelColor.getAlpha() };
     }
 
     public static int getColorIntValFromRGBA(int[] colorData) {
